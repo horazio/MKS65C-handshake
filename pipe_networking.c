@@ -16,21 +16,40 @@ int server_handshake(int *to_client) {
   int fd = open("WellKnownPipe", O_RDONLY);
   char raf[256];
   read(fd, raf, 256);
-  //raf[5] = 0;
-
+  
+  int i = fork();
+  
+  if(i){
+   //unlink("WellKnownPipe");
+   return server_handshake(to_client);
+  }
+  else{
   //printf("The message I recieved from the client is: %s\nI am proceeding to open a pipe of said name\n", raf);
   int fd2 = open(raf, O_WRONLY);
+  write(fd2, "Newboi", 7);
+ 
+    
+  //printf("asdfasdfasdf\n\n\n");  
+  mkfifo("Newboi", 0666);
+  int fd = open("Newboi", O_RDONLY);
+  
+  
+  
+  
+  
   //printf("fd2: %d, '%s'\n\n", fd2, raf);
-
   //printf("Sending message to client: Hello There... Listening\n");
-  write(fd2, "Hello There", 12);
+  
 
   //fd = open("WellKnownPipe", O_RDONLY);
   //sleep(1);
+    
   read(fd, raf, 256);
+    
   //printf("The message I recieved back from the client is: %s\n", raf);
   if(!strcmp(raf, "Handshake Complete")){
     //Do stuff
+    printf("Handshake Complete\n");
     while(1){
       read(fd, raf, 256);
       printf("Got: '%s'\n", raf);
@@ -40,12 +59,13 @@ int server_handshake(int *to_client) {
     }
     
   }else{
-    printf("Oops, server is unable to confirm, something went wrong...");
+    //printf("Oops, server is unable to confirm, something went wrong...");
   }
   
   unlink("WellKnownPipe");
   * to_client = fd2;
   return fd;
+  }
 }
 
 
@@ -73,6 +93,12 @@ int client_handshake(int *to_server) {
   read(fd2, raf, 256);
 
   //printf("The message I received back from the server is: %s\nSending back: Handshake Complete\n", raf);
+  fd = open(raf, O_WRONLY);
+  write(fd, "Handshake Complete", 18);
+  //unlink(raf);
+  //unlink("WellKnownPipe");
+  
+  /*
   if(!strcmp(raf, "Hello There")){
     write(fd, "Handshake Complete", 18);
     unlink("Fife");
@@ -80,7 +106,9 @@ int client_handshake(int *to_server) {
   }else{
     printf("Oops something went wrong, the server could not establish a connection");
   }
+  */
   
+  printf("Handshake Complete\n");
   //Do stuff
   while(1){
     printf("What would you like to say? ");
